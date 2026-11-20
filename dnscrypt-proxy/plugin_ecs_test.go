@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"codeberg.org/miekg/dns"
+	"github.com/BurntSushi/toml"
 )
 
 func ecsTestQuery(withClientSubnet bool) *dns.Msg {
@@ -71,5 +72,25 @@ func TestPluginECS(t *testing.T) {
 				t.Error("other EDNS options must be kept")
 			}
 		})
+	}
+}
+
+func TestEDNSClientSubnetPassthroughDefault(t *testing.T) {
+	for _, tt := range []struct {
+		toml string
+		want bool
+	}{
+		{"", true},
+		{"edns_client_subnet = ['192.0.2.0/24']", true},
+		{"edns_client_subnet_passthrough = false", false},
+		{"edns_client_subnet_passthrough = true", true},
+	} {
+		config := newConfig()
+		if _, err := toml.Decode(tt.toml, &config); err != nil {
+			t.Fatal(err)
+		}
+		if config.EDNSClientSubnetPassthrough != tt.want {
+			t.Errorf("%q: edns_client_subnet_passthrough = %v, want %v", tt.toml, config.EDNSClientSubnetPassthrough, tt.want)
+		}
 	}
 }
