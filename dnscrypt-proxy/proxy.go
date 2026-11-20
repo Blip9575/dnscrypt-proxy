@@ -116,6 +116,8 @@ type Proxy struct {
 	ipCryptConfig                 *IPCryptConfig
 	udpConnPool                   *UDPConnPool
 	netMonitor                    *networkMonitor
+
+	ednsClientSubnetPassthrough bool
 }
 
 func (proxy *Proxy) registerUDPListener(conn *net.UDPConn) {

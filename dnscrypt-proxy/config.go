@@ -110,6 +110,8 @@ type Config struct {
 	DNS64                    DNS64Config                 `toml:"dns64"`
 	EDNSClientSubnet         []string                    `toml:"edns_client_subnet"`
 	IPEncryption             IPEncryptionConfig          `toml:"ip_encryption"`
+
+	EDNSClientSubnetPassthrough bool `toml:"edns_client_subnet_passthrough"`
 }
 
 func newConfig() Config {
@@ -178,6 +180,8 @@ func newConfig() Config {
 			DirectCertFallback: true,
 		},
 		CloakedPTR: false,
+
+		EDNSClientSubnetPassthrough: true,
 	}
 }
 
