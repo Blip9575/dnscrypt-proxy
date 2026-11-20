@@ -10,7 +10,8 @@ import (
 )
 
 type PluginECS struct {
-	nets []*net.IPNet
+	nets        []*net.IPNet
+	passthrough bool
 }
 
 func (plugin *PluginECS) Name() string {
@@ -23,6 +24,7 @@ func (plugin *PluginECS) Description() string {
 
 func (plugin *PluginECS) Init(proxy *Proxy) error {
 	plugin.nets = proxy.ednsClientSubnets
+	plugin.passthrough = proxy.ednsClientSubnetPassthrough
 	dlog.Notice("ECS plugin enabled")
 	return nil
 }
@@ -36,11 +38,25 @@ func (plugin *PluginECS) Reload() error {
 }
 
 func (plugin *PluginECS) Eval(pluginsState *PluginsState, msg *dns.Msg) error {
-	// Check if SUBNET already exists in Pseudo section
-	for _, rr := range msg.Pseudo {
-		if _, ok := rr.(*dns.SUBNET); ok {
-			return nil
+	if plugin.passthrough {
+		// Keep the subnet sent by the client, if any
+		for _, rr := range msg.Pseudo {
+			if _, ok := rr.(*dns.SUBNET); ok {
+				return nil
+			}
 		}
+	} else {
+		// Drop the subnet sent by the client, if any
+		pseudo := msg.Pseudo[:0]
+		for _, rr := range msg.Pseudo {
+			if _, ok := rr.(*dns.SUBNET); !ok {
+				pseudo = append(pseudo, rr)
+			}
+		}
+		msg.Pseudo = pseudo
+	}
+	if len(plugin.nets) == 0 {
+		return nil
 	}
 
 	// Enable EDNS0 if not already enabled

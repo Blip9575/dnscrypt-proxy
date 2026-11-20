@@ -162,6 +162,13 @@ keepalive = 30
 
 # edns_client_subnet = ['0.0.0.0/0', '2001:db8::/32']
 
+## Keep EDNS-client-subnet information sent by clients (default: true).
+## If false, it is removed from queries before they are sent to servers.
+## When edns_client_subnet is also set, its networks then replace the
+## client-provided ones instead of only being added when there are none.
+
+# edns_client_subnet_passthrough = true
+
 
 ## Response for blocked queries. Options are `refused`, `hinfo` (default) or
 ## an IP response. To give an IP response, use the format `a:<IPv4>,aaaa:<IPv6>`.

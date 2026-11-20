@@ -278,6 +278,7 @@ func configurePlugins(proxy *Proxy, config *Config) {
 
 // configureEDNSClientSubnet - Configures EDNS client subnet
 func configureEDNSClientSubnet(proxy *Proxy, config *Config) error {
+	proxy.ednsClientSubnetPassthrough = config.EDNSClientSubnetPassthrough
 	if len(config.EDNSClientSubnet) != 0 {
 		proxy.ednsClientSubnets = make([]*net.IPNet, 0)
 		for _, cidr := range config.EDNSClientSubnet {
